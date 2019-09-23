@@ -14,6 +14,13 @@ class Ability:
         attack = random.randint(0, self.max_damage)
         return attack
 
+class Weapon(Ability):
+    def attack(self):
+        '''This method returns a random value between one half to the full attack power of the weapon'''
+        weapon_attack = random.randint(self.max_damage//2, self.max_damage)
+        return weapon_attack
+            
+
 class Armor:
     def __init__(self, name, max_block):
         '''Instantiate Instance Properties:
@@ -108,6 +115,31 @@ class Hero:
             else:
                 print("Draw!")
                 return False
+
+class Team:
+    def __init__(self, name):
+        '''Initialize your team with its team name'''
+        self.name = name
+        self.heroes = []
+        pass
+    
+    def add_hero(self, hero):
+        '''Add Hero object to self.heroes.'''
+        self.heroes.append(hero)
+
+    def remove_hero(self, name):
+        '''Remove hero from heroes list.
+        If Hero isn't found return 0.
+        '''
+        for hero in self.heroes:
+            if name == hero.name:
+                self.heroes.remove(hero)
+        return 0
+
+    def view_all_heroes(self):
+        '''Prints out all heroes to the console.'''
+        for hero in self.heroes:
+            print('{}'.format(hero.name))
 
 if __name__ == "__main__":
     # If you run this file from the terminal
