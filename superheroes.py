@@ -55,6 +55,10 @@ class Hero:
         ''' Add ability to abilities list '''
         self.abilities.append(ability)
     
+    def add_weapon(self, weapon):
+        '''Add weapon to self.abilities'''
+        self.abilities.append(weapon)
+    
     def add_armor(self, armor):
         '''Add armor to self.armors
             Armor: Armor Object
@@ -92,7 +96,7 @@ class Hero:
 
     def is_alive(self):
         ''' Return True or False depending on whether the hero is alive or not. '''
-        if self.current_health < 1:
+        if int(self.current_health) < 1:
             return False
         else:
             return True
@@ -116,13 +120,16 @@ class Hero:
                 self.take_damage(opponent_turn)
                 
                 if opponent.is_alive() == False:
+                    winner = self.name
                     self.add_kill(1)
                     opponent.add_deaths(1)
                     print(self.name + ' wins!')
                 else:
+                    winner = opponent.name
                     self.add_deaths(1)
                     opponent.add_kill(1)
                     print(opponent.name + " wins!")    
+                return winner
             else:
                 print("Draw!")
                 return False
@@ -160,7 +167,9 @@ class Team:
         hero = choice(self.survivors())
         opponent = choice(other_team.survivors())
 
-        hero.fight(opponent)
+        result = hero.fight(opponent)
+
+        return result
 
     def survivors(self):
         living = [hero for hero in self.heroes if hero.is_alive()]
@@ -178,18 +187,137 @@ class Team:
             print("Kills: " + str(hero.num_kills))
             print("Death: " + str(hero.num_deaths))
 
+class Arena:
+    def __init__(self):
+        '''Instantiate properties
+            team_one: None
+            team_two: None
+        '''
+        self.team_one = None
+        self.team_two = None
+        self.winner = None
+    
+    def create_ability(self):
+        '''Prompt for Ability information.
+            return Ability with values from user Input
+        '''
+
+        new_ability = input('What is your hero\'s ability?: ')
+        new_ability_level = input('How strong is this ability?: ')
+        
+        return Ability(new_ability, new_ability_level)
+
+    def create_weapon(self):
+        '''Prompt user for Weapon information
+            return Weapon with values from user input.
+        '''
+        
+        new_weapon = input('What is your hero\'s weapon?: ')
+        new_weapon_level = input('How strong is this weapon?: ')
+        
+        return Ability(new_weapon, new_weapon_level)
+    
+    def create_armor(self):
+        '''Prompt user for Armor information
+          return Armor with values from user input.
+        '''
+        new_armor = input('What is your hero\'s armor?: ')
+        new_armor_level = input('How much damage does this armor protect from? ')
+
+        return Armor(new_armor, new_armor_level)
+    
+    def create_hero(self):
+        '''Prompt user for Hero information
+          return Hero with values from user input.
+        '''
+        new_hero = input('Who is your champion?: ')
+        new_health = input('Set your Hero\'s hitpoints (Default: 100): ' )
+        
+        hero = Hero(new_hero, new_health)
+
+        load_em_up = True
+        while load_em_up == True:
+            equip_choices = input('Please press:\nA to add an Ability\nR to equip Armor\nW to equip a Weapon\nF to Finish creating your champion: ')
+            if equip_choices == "A":
+                ability = self.create_ability()
+                hero.add_ability(ability)
+            elif equip_choices == "R":
+                armor = self.create_armor()
+                hero.add_armor(armor)
+            elif equip_choices == "W":
+                weapon = self.create_weapon()
+                hero.add_weapon(weapon)
+            elif equip_choices == "F":
+                load_em_up = False          
+            else:
+                print("Please select one of the available options.")
+        
+        return hero
+
+    def build_team_one(self):
+        '''Prompt the user to build teams'''
+        name = input('What\'s your team name? ')
+        self.team_one = Team(name)
+
+        build_time = True
+        while build_time == True:
+            hero_count = input('How many heroes are on your team? ')
+            if hero_count.isdigit() == False:
+                print('Unrecognized input. Please enter an integer.')
+            elif hero_count == "0":
+                print('You need at least one hero on your team.')
+            else:
+                count = 0
+                while int(hero_count) > count:
+                    hero = self.create_hero()
+                    self.team_one.add_hero(hero)
+                    count += 1
+                build_time = False
+        
+        self.team_one.view_all_heroes()
+        return self.team_one
+    
+    def build_team_two(self):
+        '''Prompt the user to build teams'''
+        name = input('What\'s your team name? ')
+        self.team_two = Team(name)
+        
+        build_time = True
+        while build_time == True:
+            hero_count = input('How many heroes are on your team? ')
+            if hero_count.isdigit() == False:
+                print('Unrecognized input. Please enter an integer.')
+            elif hero_count == "0":
+                print('You need at least one hero on your team.')
+            else:
+                count = 0
+                while int(hero_count) > count:
+                    hero = self.create_hero()
+                    self.team_two.add_hero(hero)
+                    count += 1
+                build_time = False
+        
+        self.team_two.view_all_heroes()
+        return self.team_two
+    
+    def team_battle(self):
+        '''Battle team_one and team_two together.'''
+        self.winner = self.team_one.attack(self.team_two)
+
+    def show_stats(self):
+        '''Prints team statistics to terminal.'''
+        print( self.winner + " wins!" )
+
+        self.team_one.stats()
+        self.team_two.stats()
+
+        self.winner.survivors()
+
 if __name__ == "__main__":
     # If you run this file from the terminal
     # this block is executed.
-
-    hero1 = Hero("Wonder Woman")
-    hero2 = Hero("Dumbledore")
-    ability1 = Ability("Super Speed", 300)
-    ability2 = Ability("Super Eyes", 20)
-    ability3 = Ability("Wizard Wand", 300)
-    ability4 = Ability("Wizard Beard", 20)
-    hero1.add_ability(ability1)
-    hero1.add_ability(ability2)
-    hero2.add_ability(ability3)
-    hero2.add_ability(ability4)
-    hero1.fight(hero2)
+    arena = Arena()
+    arena.build_team_one()
+    arena.build_team_two()
+    arena.team_battle()
+    arena.show_stats()
