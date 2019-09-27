@@ -75,7 +75,7 @@ class Hero:
         
         return total_attack
 
-    def defend(self):
+    def defend(self, damage_amount=0):
         '''Runs `block` method on each armor.
             Returns sum of all blocks
         '''
@@ -84,13 +84,14 @@ class Hero:
         for armor in self.armors:
             total_armor = total_armor + armor.block()
 
-        return total_armor
+        result = total_armor - damage_amount
+        
+        return result
 
     def take_damage(self, damage):
         '''Updates self.current_health to reflect the damage minus the defense. '''
-        
-        after_damage = self.defend() - damage
-        self.current_health = int(self.current_health) - after_damage
+
+        self.current_health = int(self.current_health) - damage
 
     def is_alive(self):
         ''' Return True or False depending on whether the hero is alive or not. '''
@@ -124,10 +125,12 @@ class Hero:
                     self.winner = self.name
                     self.add_kill(1)
                     opponent.add_deaths(1)
+                    break
                 else:
                     self.winner = opponent.name
                     self.add_deaths(1)
                     opponent.add_kill(1)
+                    break
                 
                 return self.winner
 
@@ -313,12 +316,14 @@ class Arena:
         self.team_one.stats()
         self.team_two.stats()
 
-        if len(self.team_one.survivors()) > 0:
+        if len(self.team_one.survivors()) > 0 and len(self.team_two.survivors) == 0:
             for hero in self.team_one.survivors():
-                print("Survivors: {}".format(hero.name))
-        else:
+                print("Survivor: " + hero.name)
+        elif len(self.team_two.survivors()) > 0 and len(self.team_one.survivors) == 0:
             for hero in self.team_two.survivors():
-                print("Survivors: {}".format(hero.name))
+                print("Survivor: " + hero.name)
+        else:
+            print("No survivors")
 
 if __name__ == "__main__":
     # If you run this file from the terminal
