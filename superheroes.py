@@ -181,7 +181,7 @@ class Team:
         for hero in self.heroes:
             print("Hero: " + hero.name)
             print("Kills: " + str(hero.kills))
-            print("Death: " + str(hero.deaths))
+            print("Death: {} \n".format(hero.deaths))
 
 class Arena:
     def __init__(self):
@@ -308,13 +308,17 @@ class Arena:
 
     def show_stats(self):
         '''Prints team statistics to terminal.'''
-        winning = self.team_battle()
-        print( winning + " wins!" )
+        print(self.team_battle() + " wins!" )
 
         self.team_one.stats()
         self.team_two.stats()
 
-        winning.survivors()
+        if len(self.team_one.survivors()) > 0:
+            for hero in self.team_one.survivors():
+                print("Survivors: {}".format(hero.name))
+        else:
+            for hero in self.team_two.survivors():
+                print("Survivors: {}".format(hero.name))
 
 if __name__ == "__main__":
     # If you run this file from the terminal
