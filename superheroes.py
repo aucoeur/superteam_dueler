@@ -11,14 +11,13 @@ class Ability:
 
     def attack(self):
         ''' Return a value between 0 and the value set by self.max_damage.'''
-        attack = randint(0, self.max_damage)
+        attack = randint(0, int(self.max_damage))
         return attack
 
 class Weapon(Ability):
     def attack(self):
         '''This method returns a random value between one half to the full attack power of the weapon'''
-        weapon_attack = randint(self.max_damage//2, self.max_damage)
-        return weapon_attack
+        return randint(self.max_damage//2, self.max_damage)
 
 class Armor:
     def __init__(self, name, max_block):
@@ -31,8 +30,7 @@ class Armor:
     
     def block(self):
         ''' Return a random value between 0 and the initialized max_block strength. '''
-        block = randint(0, self.max_block)
-        return block
+        return randint(0, int(self.max_block))
 
 class Hero:
     def __init__(self, name, starting_health = 100):
@@ -85,54 +83,53 @@ class Hero:
 
         for armor in self.armors:
             total_armor = total_armor + armor.block()
-        
+
         return total_armor
 
     def take_damage(self, damage):
         '''Updates self.current_health to reflect the damage minus the defense. '''
-        self.current_health = self.current_health - damage
-
-        return self.current_health
+        
+        after_damage = self.defend() - damage
+        self.current_health = int(self.current_health) - after_damage
 
     def is_alive(self):
         ''' Return True or False depending on whether the hero is alive or not. '''
-        if int(self.current_health) < 1:
+        if int(self.current_health) <= 0:
             return False
         else:
             return True
     
     def add_kill(self, num_kills):
         '''Update kills with num_kills'''
-        self.kills = self.kills + num_kills
+        self.kills += num_kills
     
     def add_deaths(self, num_deaths):
         '''Update deaths with num_deaths'''
-        self.deaths = self.deaths + num_deaths
-
+        self.deaths += num_deaths
+        
     def fight(self, opponent):
         ''' Current Hero will take turns fighting the opponent hero passed in.'''
-        while self.is_alive() == True and opponent.is_alive() == True:
-            if len(self.abilities) > 0 or len(opponent.abilities) > 0:
-                self_turn = self.attack()
-                opponent.take_damage(self_turn)
 
+        while self.is_alive() == True and opponent.is_alive() == True:
+            if len(self.abilities) == 0 or len(opponent.abilities) == 0:
+                return "Draw!"
+            else:
+                self_turn = self.attack()
                 opponent_turn = opponent.attack()
+
                 self.take_damage(opponent_turn)
+                opponent.take_damage(self_turn)
                 
                 if opponent.is_alive() == False:
-                    winner = self.name
+                    self.winner = self.name
                     self.add_kill(1)
                     opponent.add_deaths(1)
-                    print(self.name + ' wins!')
                 else:
-                    winner = opponent.name
+                    self.winner = opponent.name
                     self.add_deaths(1)
                     opponent.add_kill(1)
-                    print(opponent.name + " wins!")    
-                return winner
-            else:
-                print("Draw!")
-                return False
+                
+                return self.winner
 
 class Team:
     def __init__(self, name):
@@ -164,13 +161,12 @@ class Team:
         # them fight until one or both teams have no surviving heroes.
         # Hint: Use the fight method in the Hero class.
         
-        hero = choice(self.survivors())
-        opponent = choice(other_team.survivors())
+        while len(self.survivors()) > 0 or len(other_team.survivors() > 0):
+            hero = choice(self.survivors())
+            opponent = choice(other_team.survivors())
 
-        result = hero.fight(opponent)
-
-        return result
-
+            return hero.fight(opponent)
+            
     def survivors(self):
         living = [hero for hero in self.heroes if hero.is_alive()]
         return living
@@ -184,8 +180,8 @@ class Team:
         '''Print team statistics'''
         for hero in self.heroes:
             print("Hero: " + hero.name)
-            print("Kills: " + str(hero.num_kills))
-            print("Death: " + str(hero.num_deaths))
+            print("Kills: " + str(hero.kills))
+            print("Death: " + str(hero.deaths))
 
 class Arena:
     def __init__(self):
@@ -231,9 +227,9 @@ class Arena:
           return Hero with values from user input.
         '''
         new_hero = input('Who is your champion?: ')
-        new_health = input('Set your Hero\'s hitpoints (Default: 100): ' )
+        self.starting_health = input('Set your Hero\'s hitpoints (Default: 100): ' )
         
-        hero = Hero(new_hero, new_health)
+        hero = Hero(new_hero, self.starting_health)
 
         load_em_up = True
         while load_em_up == True:
@@ -302,16 +298,23 @@ class Arena:
     
     def team_battle(self):
         '''Battle team_one and team_two together.'''
-        self.winner = self.team_one.attack(self.team_two)
+        self.team_one.attack(self.team_two)
+        if len(self.team_one.survivors()) > 0 and len(self.team_two.survivors()) == 0:
+            self.winner = self.team_one.name
+            return self.winner
+        else:
+            self.winner = self.team_two.name
+            return self.winner
 
     def show_stats(self):
         '''Prints team statistics to terminal.'''
-        print( self.winner + " wins!" )
+        winning = self.team_battle()
+        print( winning + " wins!" )
 
         self.team_one.stats()
         self.team_two.stats()
 
-        self.winner.survivors()
+        winning.survivors()
 
 if __name__ == "__main__":
     # If you run this file from the terminal
