@@ -349,6 +349,7 @@ def test_team_attack():
     assert team_two.heroes[0].current_health == 100
 
     team_one.attack(team_two)
+    # print(team_two.heroes[0].current_health <= 0)
 
     assert team_two.heroes[0].current_health <= 0
 

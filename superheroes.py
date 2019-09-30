@@ -102,37 +102,40 @@ class Hero:
     
     def add_kill(self, num_kills):
         '''Update kills with num_kills'''
-        self.kills += num_kills
+        self.kills += int(num_kills)
     
     def add_deaths(self, num_deaths):
         '''Update deaths with num_deaths'''
-        self.deaths += num_deaths
+        self.deaths += int(num_deaths)
         
     def fight(self, opponent):
         ''' Current Hero will take turns fighting the opponent hero passed in.'''
 
-        while self.is_alive() == True and opponent.is_alive() == True:
-            if len(self.abilities) == 0 or len(opponent.abilities) == 0:
-                return "Draw!"
-            else:
-                self_turn = self.attack()
-                opponent_turn = opponent.attack()
+        while self.is_alive() and opponent.is_alive():
+            # if len(self.abilities) == 0 or len(opponent.abilities) == 0:
+            #     return "Draw!"
+            # Thanks Ben Lafferty! :)
+            if not self.abilities and opponent.abilities:
+                return "Draw :)"
+            
+            self_turn = self.attack()
+            opponent_turn = opponent.attack()
 
-                self.take_damage(opponent_turn)
-                opponent.take_damage(self_turn)
-                
-                if opponent.is_alive() == False:
-                    self.winner = self.name
-                    self.add_kill(1)
-                    opponent.add_deaths(1)
-                    break
-                else:
-                    self.winner = opponent.name
-                    self.add_deaths(1)
-                    opponent.add_kill(1)
-                    break
-                
-                return self.winner
+            self.take_damage(opponent_turn)
+            opponent.take_damage(self_turn)
+            
+            if opponent.is_alive() == False:
+                self.winner = self.name
+                self.add_kill(1)
+                opponent.add_deaths(1)
+                break
+            else:
+                self.winner = opponent.name
+                self.add_deaths(1)
+                opponent.add_kill(1)
+                break
+            
+            return self.winner
 
 class Team:
     def __init__(self, name):
@@ -204,7 +207,7 @@ class Arena:
         new_ability = input('What is your hero\'s ability?: ')
         new_ability_level = input('How strong is this ability?: ')
         
-        return Ability(new_ability, new_ability_level)
+        return Ability(new_ability, int(new_ability_level))
 
     def create_weapon(self):
         '''Prompt user for Weapon information
@@ -214,7 +217,7 @@ class Arena:
         new_weapon = input('What is your hero\'s weapon?: ')
         new_weapon_level = input('How strong is this weapon?: ')
         
-        return Ability(new_weapon, new_weapon_level)
+        return Ability(new_weapon, int(new_weapon_level))
     
     def create_armor(self):
         '''Prompt user for Armor information
@@ -223,7 +226,7 @@ class Arena:
         new_armor = input('What is your hero\'s armor?: ')
         new_armor_level = input('How much damage does this armor protect from? ')
 
-        return Armor(new_armor, new_armor_level)
+        return Armor(new_armor, int(new_armor_level))
     
     def create_hero(self):
         '''Prompt user for Hero information
