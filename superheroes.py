@@ -91,7 +91,7 @@ class Hero:
     def take_damage(self, damage):
         '''Updates self.current_health to reflect the damage minus the defense. '''
 
-        self.current_health = int(self.current_health) - damage
+        self.current_health = int(self.current_health) - int(damage)
 
     def is_alive(self):
         ''' Return True or False depending on whether the hero is alive or not. '''
@@ -102,11 +102,11 @@ class Hero:
     
     def add_kill(self, num_kills):
         '''Update kills with num_kills'''
-        self.kills += int(num_kills)
+        self.kills += num_kills
     
     def add_deaths(self, num_deaths):
         '''Update deaths with num_deaths'''
-        self.deaths += int(num_deaths)
+        self.deaths += num_deaths
         
     def fight(self, opponent):
         ''' Current Hero will take turns fighting the opponent hero passed in.'''
@@ -128,12 +128,10 @@ class Hero:
                 self.winner = self.name
                 self.add_kill(1)
                 opponent.add_deaths(1)
-                break
             else:
                 self.winner = opponent.name
                 self.add_deaths(1)
                 opponent.add_kill(1)
-                break
             
             return self.winner
 
@@ -185,8 +183,8 @@ class Team:
     def stats(self):
         '''Print team statistics'''
         for hero in self.heroes:
-            print("Hero: " + hero.name)
-            print("Kills: " + str(hero.kills))
+            print("Hero: {}".format(hero.name))
+            print("Kills: {}".format(hero.kills))
             print("Death: {} \n".format(hero.deaths))
 
 class Arena:
@@ -319,20 +317,38 @@ class Arena:
         self.team_one.stats()
         self.team_two.stats()
 
-        if len(self.team_one.survivors()) > 0 and len(self.team_two.survivors) == 0:
+        if self.winner == self.team_one.name:
             for hero in self.team_one.survivors():
-                print("Survivor: " + hero.name)
-        elif len(self.team_two.survivors()) > 0 and len(self.team_one.survivors) == 0:
+                print("Survivor: {}".format(hero.name))
+        elif self.winner == self.team_two.name:
             for hero in self.team_two.survivors():
-                print("Survivor: " + hero.name)
+                print("Survivor: {}".format(hero.name))
         else:
             print("No survivors")
 
 if __name__ == "__main__":
     # If you run this file from the terminal
     # this block is executed.
+    game_is_running = True
+
+    # Instantiate Game Arena
     arena = Arena()
+
+    #Build Teams
     arena.build_team_one()
     arena.build_team_two()
-    arena.team_battle()
-    arena.show_stats()
+
+    while game_is_running:
+
+        arena.team_battle()
+        arena.show_stats()
+        play_again = input("Play Again? Y or N: ")
+
+        #Check for Player Input
+        if play_again.lower() == "n":
+            game_is_running = False
+
+        else:
+            #Revive heroes to play 
+            arena.team_one.revive_heroes()
+            arena.team_two.revive_heroes()
